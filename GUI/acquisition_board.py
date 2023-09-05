@@ -48,7 +48,7 @@ class Acquisition_board(Pyboard):
             "2 colour continuous",
             "1 colour time div.",
             "2 colour time div.",
-            "1 colour continuous + 2 colour time div" # RFP continuous, GFP + isosbestic time div, 
+            "1 colour continuous + 2 colour time div." # RFP continuous, GFP + isosbestic time div, 
         ], "Invalid mode"
         self.mode = mode
         if mode == "2 colour continuous":  # 2 channel GFP/RFP acquisition mode.
@@ -57,7 +57,7 @@ class Acquisition_board(Pyboard):
         elif mode in (
             "1 colour time div.",
             "2 colour time div.",
-            "1 colour continuous + 2 colour time div"
+            "1 colour continuous + 2 colour time div."
         ):  # GCaMP and isosbestic using time division multiplexing.
             self.max_rate = hwc.max_sampling_rate["tdiv"]
             self.max_LED_current = hwc.max_LED_current["tdiv"]

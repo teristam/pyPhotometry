@@ -5,6 +5,7 @@ pins = {
     "analog_2": "X12",
     "digital_1": "Y7",
     "digital_2": "Y8",
+    "DO1":"X18"
 }  # Pyboard Pins used for analog and digital signals.
 
 LED_calibration = {
