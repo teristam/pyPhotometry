@@ -87,7 +87,7 @@ class Photometry_GUI(QtWidgets.QWidget):
 
         self.mode_label = QtWidgets.QLabel("Mode:")
         self.mode_select = QtWidgets.QComboBox()
-        self.mode_select.addItems(["2 colour continuous", "1 colour time div.", "2 colour time div.", "1 colour continuous + 2 colour time div"])
+        self.mode_select.addItems(["2 colour continuous", "1 colour time div.", "2 colour time div.", "1 colour continuous + 2 colour time div."])
         set_cbox_item(self.mode_select, GUI_config.default_acquisition_mode)
         self.rate_label = QtWidgets.QLabel("Sampling rate (Hz):")
         self.rate_text = QtWidgets.QLineEdit()
@@ -294,6 +294,8 @@ class Photometry_GUI(QtWidgets.QWidget):
         if self.current_spinbox_2.value() > self.board.max_LED_current:
             self.current_spinbox_2.setValue(self.board.max_LED_current)
             self.board.set_LED_current(LED_2_current=self.board.max_LED_current)
+            
+        self.analog_plot.set_mode(mode)
 
     def rate_text_change(self, text):
         if text:
@@ -393,9 +395,14 @@ class Photometry_GUI(QtWidgets.QWidget):
             self.stop(error=True)
             raise
         if data:
-            new_ADC1, new_ADC2, new_DI1, new_DI2 = data
-            # Update plots.
-            self.analog_plot.update(new_ADC1, new_ADC2)
+            if self.board.mode == "1 colour continuous + 2 colour time div.":
+                new_ADC1_0, new_ADC1_1, new_ADC2, new_DI1, new_DI2 = data
+                self.analog_plot.update(new_ADC1_0, new_ADC1_1, new_ADC2)
+            else:
+                new_ADC1, new_ADC2, new_DI1, new_DI2 = data
+                # Update plots.
+                self.analog_plot.update(new_ADC1, new_ADC2)
+                
             self.digital_plot.update(new_DI1, new_DI2)
             self.event_triggered_plot.update(new_DI1, self.digital_plot, self.analog_plot)
             self.record_clock.update()

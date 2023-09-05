@@ -83,7 +83,7 @@ class Photometry():
             self.LED1.write(self.LED_1_value)
             self.LED2.write(self.LED_2_value)
         elif self.mode == "1 colour continuous + 2 colour time div.":
-            self.LED3.write(1)
+            self.LED3.value(1)
             self.sampling_timer.init(freq=sampling_rate)
             self.sampling_timer.callback(self.hybrid_div_ISR)
         else:

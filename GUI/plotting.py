@@ -17,11 +17,7 @@ class Analog_plot(QtWidgets.QWidget):
 
         # Create axis
         self.axis = pg.PlotWidget(title="Analog signal", labels={"left": "Volts"})
-        self.legend = self.axis.addLegend(offset=(10, 10))
-        self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="analog 1")
-        self.plot_2 = self.axis.plot(pen=pg.mkPen("r"), name="analog 2")
-        self.axis.setYRange(0, 3.3, padding=0)
-        self.axis.setXRange(-history_dur, history_dur * 0.02, padding=0)
+
 
         # Create controls
         self.demean_checkbox = QtWidgets.QCheckBox("De-mean plotted signals")
@@ -43,27 +39,80 @@ class Analog_plot(QtWidgets.QWidget):
         self.vertical_layout.addLayout(self.controls_layout)
         self.vertical_layout.addWidget(self.axis)
         self.setLayout(self.vertical_layout)
+        
+    def set_mode(self,mode):
+        self.mode = mode
+        self.axis.clear()
+        self.legend = self.axis.addLegend(offset=(10, 10))
+
+        
+        if self.mode == "1 colour continuous + 2 colour time div.":
+            self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="analog 1_0")
+            self.plot_2 = self.axis.plot(pen=pg.mkPen("b"), name="analog 1_1")
+            self.plot_3 = self.axis.plot(pen=pg.mkPen("r"), name="analog 2")
+        else:
+            self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="analog 1")
+            self.plot_2 = self.axis.plot(pen=pg.mkPen("r"), name="analog 2")
+        self.axis.setYRange(0, 3.3, padding=0)
+        self.axis.setXRange(-history_dur, history_dur * 0.02, padding=0)
+        
 
     def reset(self, sampling_rate):
         history_length = int(sampling_rate * history_dur)
-        self.ADC1 = Signal_history(history_length)
-        self.ADC2 = Signal_history(history_length)
+        if self.mode == "1 colour continuous + 2 colour time div.":
+            self.ADC1_0 = Signal_history(history_length)
+            self.ADC1_1 = Signal_history(history_length)
+            self.ADC2 = Signal_history(history_length)
+        else:
+            self.ADC1 = Signal_history(history_length)
+            self.ADC2 = Signal_history(history_length)
         self.x = np.linspace(-history_dur, 0, history_length)  # X axis for timeseries plots.
 
-    def update(self, new_ADC1, new_ADC2):
-        new_ADC1 = 3.3 * new_ADC1 / (1 << 15)  # Convert to Volts.
-        new_ADC2 = 3.3 * new_ADC2 / (1 << 15)
-        self.ADC1.update(new_ADC1)
-        self.ADC2.update(new_ADC2)
-        if self.AC_mode:
-            # Plot signals with mean removed.
-            y1 = self.ADC1.history - np.mean(self.ADC1.history) + self.offset_spinbox.value() / 1000
-            y2 = self.ADC2.history - np.mean(self.ADC2.history)
-            self.plot_1.setData(self.x, y1)
-            self.plot_2.setData(self.x, y2)
+    def update(self, *args):
+        
+        if self.mode == "1 colour continuous + 2 colour time div.":
+            new_ADC1_0 = args[0]
+            new_ADC1_1 = args[1]
+            new_ADC2 = args[2]
+            
+            new_ADC1_0 = 3.3 * new_ADC1_0 / (1 << 15)  # Convert to Volts.
+            new_ADC1_1 = 3.3 * new_ADC1_1 / (1 << 15)  # Convert to Volts.
+            new_ADC2 = 3.3 * new_ADC2 / (1 << 15)
+
+
+            self.ADC1_0.update(new_ADC1_0)
+            self.ADC1_1.update(new_ADC1_1)
+            self.ADC2.update(new_ADC2)
+            if self.AC_mode:
+                # Plot signals with mean removed.
+                y10 = self.ADC1_0.history - np.mean(self.ADC1_0.history) + self.offset_spinbox.value() / 1000
+                y11 = self.ADC1_1.history - np.mean(self.ADC1_1.history) + self.offset_spinbox.value() / 1000
+
+                y2 = self.ADC2.history - np.mean(self.ADC2.history)
+                self.plot_1.setData(self.x, y10)
+                self.plot_2.setData(self.x, y11)
+                self.plot_3.setData(self.x, y2)
+            else:
+                self.plot_1.setData(self.x, self.ADC1_0.history)
+                self.plot_2.setData(self.x, self.ADC1_1.history)
+                self.plot_3.setData(self.x, self.ADC2.history)
+                
         else:
-            self.plot_1.setData(self.x, self.ADC1.history)
-            self.plot_2.setData(self.x, self.ADC2.history)
+            new_ADC1 = args[0]
+            new_ADC2 = args[1]
+            new_ADC1 = 3.3 * new_ADC1 / (1 << 15)  # Convert to Volts.
+            new_ADC2 = 3.3 * new_ADC2 / (1 << 15)
+            self.ADC1.update(new_ADC1)
+            self.ADC2.update(new_ADC2)
+            if self.AC_mode:
+                # Plot signals with mean removed.
+                y1 = self.ADC1.history - np.mean(self.ADC1.history) + self.offset_spinbox.value() / 1000
+                y2 = self.ADC2.history - np.mean(self.ADC2.history)
+                self.plot_1.setData(self.x, y1)
+                self.plot_2.setData(self.x, y2)
+            else:
+                self.plot_1.setData(self.x, self.ADC1.history)
+                self.plot_2.setData(self.x, self.ADC2.history)
 
     def enable_disable_demean_mode(self):
         if self.demean_checkbox.isChecked():

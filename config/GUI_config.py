@@ -11,7 +11,7 @@ update_interval = 5  # Interval between calls to update function (ms).
 default_LED_current = [10, 10]  # Channel [1, 2] (mA).
 
 default_acquisition_mode = (
-    "2 colour continuous"  # Valid values: '2 colour continuous', '1 colour time div.', '2 colour time div.'
+    "1 colour continuous + 2 colour time div."  # Valid values: '2 colour continuous', '1 colour time div.', '2 colour time div.'
 )
 
-default_filetype = "ppd"  # Valid values: 'ppd', 'csv'
+default_filetype = "csv"  # Valid values: 'ppd', 'csv'

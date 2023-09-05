@@ -168,19 +168,39 @@ class Acquisition_board(Pyboard):
                     # Extract signals.
                     signal = data >> 1  # Analog signal is most significant 15 bits.
                     digital = (data % 2) == 1  # Digital signal is least significant bit.
-                    ADC1 = signal[::2]  # Alternating samples are signals 1 and 2.
-                    ADC2 = signal[1::2]
-                    DI1 = digital[::2]
-                    DI2 = digital[1::2]
-                    # Write data to disk.
-                    if self.data_file:
-                        if self.file_type == "ppd":  # Binary data file.
-                            self.data_file.write(data.tobytes())
-                        else:  # CSV data file.
-                            np.savetxt(
-                                self.data_file, np.array([ADC1, ADC2, DI1, DI2], dtype=int).T, fmt="%d", delimiter=","
-                            )
-                    return ADC1, ADC2, DI1, DI2
+                    
+                    if self.mode == "1 colour continuous + 2 colour time div.":
+                        ADC1_0 = signal[::3]  # Signal alternates between 1,2, and 3
+                        ADC1_1 = signal[1::3]
+                        ADC2 = signal[2::3]
+                        
+                        DI1 = digital[::3]
+                        DI2 = digital[1::3]
+                        
+                        # Write data to disk.
+                        if self.data_file:
+                            if self.file_type == "ppd":  # Binary data file.
+                                self.data_file.write(data.tobytes())
+                            else:  # CSV data file.
+                                np.savetxt(
+                                    self.data_file, np.array([ADC1_0, ADC1_1, ADC2, DI1, DI2], dtype=int).T, fmt="%d", delimiter=","
+                                )
+                        return ADC1_0, ADC1_1, ADC2, DI1, DI2
+                        
+                    else:            
+                        ADC1 = signal[::2]  # Alternating samples are signals 1 and 2.
+                        ADC2 = signal[1::2]
+                        DI1 = digital[::2]
+                        DI2 = digital[1::2]
+                        # Write data to disk.
+                        if self.data_file:
+                            if self.file_type == "ppd":  # Binary data file.
+                                self.data_file.write(data.tobytes())
+                            else:  # CSV data file.
+                                np.savetxt(
+                                    self.data_file, np.array([ADC1, ADC2, DI1, DI2], dtype=int).T, fmt="%d", delimiter=","
+                                )
+                        return ADC1, ADC2, DI1, DI2
             else:
                 unexpected_input.append(new_byte)
                 unexpected_bytes = b"".join(unexpected_input[-8:])
