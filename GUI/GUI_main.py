@@ -87,7 +87,7 @@ class Photometry_GUI(QtWidgets.QWidget):
 
         self.mode_label = QtWidgets.QLabel("Mode:")
         self.mode_select = QtWidgets.QComboBox()
-        self.mode_select.addItems(["2 colour continuous", "1 colour time div.", "2 colour time div."])
+        self.mode_select.addItems(["2 colour continuous", "1 colour time div.", "2 colour time div.", "1 colour continuous + 2 colour time div"])
         set_cbox_item(self.mode_select, GUI_config.default_acquisition_mode)
         self.rate_label = QtWidgets.QLabel("Sampling rate (Hz):")
         self.rate_text = QtWidgets.QLineEdit()
