@@ -42,11 +42,24 @@ def import_ppd(file_path, low_pass=20, high_pass=0.01):
     # Extract signals.
     analog = data >> 1  # Analog signal is most significant 15 bits.
     digital = ((data & 1) == 1).astype(int)  # Digital signal is least significant bit.
-    # Alternating samples are signals 1 and 2.
-    analog_1 = analog[::2] * volts_per_division[0]
-    analog_2 = analog[1::2] * volts_per_division[1]
-    digital_1 = digital[::2]
-    digital_2 = digital[1::2]
+    
+    analog_3 = None
+    
+    if header_dict['mode'] == '1 colour continuous + 2 colour time div.':
+        # there are 3 analog signals, try to make the name compatible with exisiting recordings
+        analog_1 = analog[::3] * volts_per_division[0]  # GFP
+        analog_3 = analog[1::3] * volts_per_division[0] # isosbestic
+        analog_2 = analog[2::3] * volts_per_division[1] # RFP
+        
+        digital_1 = digital[::3]
+        digital_2 = digital[1::3]
+    else:
+        # Alternating samples are signals 1 and 2.
+        analog_1 = analog[::2] * volts_per_division[0]
+        analog_2 = analog[1::2] * volts_per_division[1]
+        digital_1 = digital[::2]
+        digital_2 = digital[1::2]
+    
     time = np.arange(analog_1.shape[0]) * 1000 / sampling_rate  # Time relative to start of recording (ms).
     # Filter signals with specified high and low pass frequencies (Hz).
     if low_pass and high_pass:
@@ -58,6 +71,8 @@ def import_ppd(file_path, low_pass=20, high_pass=0.01):
     if low_pass or high_pass:
         analog_1_filt = filtfilt(b, a, analog_1)
         analog_2_filt = filtfilt(b, a, analog_2)
+        if analog_3 is not None:
+            analog_3_filt = filtfilt(b,a,analog_3)
     else:
         analog_1_filt = analog_2_filt = None
     # Extract rising edges for digital inputs.
@@ -65,6 +80,7 @@ def import_ppd(file_path, low_pass=20, high_pass=0.01):
     pulse_inds_2 = 1 + np.where(np.diff(digital_2) == 1)[0]
     pulse_times_1 = pulse_inds_1 * 1000 / sampling_rate
     pulse_times_2 = pulse_inds_2 * 1000 / sampling_rate
+    
     # Return signals + header information as a dictionary.
     data_dict = {
         "analog_1": analog_1,
@@ -79,5 +95,12 @@ def import_ppd(file_path, low_pass=20, high_pass=0.01):
         "pulse_times_2": pulse_times_2,
         "time": time,
     }
+    
+    if analog_3 is not None:
+        data_dict.update({
+            'analog_3': analog_3,
+            'analog3_filt': analog_3_filt
+        })
+    
     data_dict.update(header_dict)
     return data_dict
