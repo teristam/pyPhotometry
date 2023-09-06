@@ -57,11 +57,13 @@ class Acquisition_board(Pyboard):
         elif mode in (
             "1 colour time div.",
             "2 colour time div.",
-            "1 colour continuous + 2 colour time div."
         ):  # GCaMP and isosbestic using time division multiplexing.
             self.max_rate = hwc.max_sampling_rate["tdiv"]
             self.max_LED_current = hwc.max_LED_current["tdiv"]
-            
+        elif mode == "1 colour continuous + 2 colour time div.":
+            self.max_rate = hwc.max_sampling_rate["hybrid"]
+            self.max_LED_current = hwc.max_LED_current["tdiv"]
+ 
         self.set_sampling_rate(self.max_rate)
         self.exec("p.set_mode('{}')".format(mode))
 
@@ -86,7 +88,11 @@ class Acquisition_board(Pyboard):
 
     def set_sampling_rate(self, sampling_rate):
         self.sampling_rate = int(min(sampling_rate, self.max_rate))
-        self.buffer_size = max(2, int(self.sampling_rate // 40) * 2)
+        if self.mode == "1 colour continuous + 2 colour time div.":
+            # need to be in the multiples of 3
+            self.buffer_size = max(2, int(self.sampling_rate // 40) * 3)
+        else:
+            self.buffer_size = max(2, int(self.sampling_rate // 40) * 2)
         self.serial_chunk_size = (self.buffer_size + 2) * 2
         return self.sampling_rate
 
