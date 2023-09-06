@@ -138,6 +138,8 @@ class Photometry():
         # time division in ADC1, continous on ADC2
         # no background subtraction
         # TODO: smoother LED turn on edge later to avoid photoelectric effects on electrodes
+        # LED1: GFP, LED2: isosbestic, LED3: RFP
+        # data sent in the form of GFP, isosbestic, RFP
         
         self.LED1.write(self.LED_1_value)
         

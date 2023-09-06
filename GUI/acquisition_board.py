@@ -176,9 +176,9 @@ class Acquisition_board(Pyboard):
                     digital = (data % 2) == 1  # Digital signal is least significant bit.
                     
                     if self.mode == "1 colour continuous + 2 colour time div.":
-                        ADC1_0 = signal[::3]  # Signal alternates between 1,2, and 3
-                        ADC1_1 = signal[1::3]
-                        ADC2 = signal[2::3]
+                        ADC1_0 = signal[::3]  # GFP
+                        ADC1_1 = signal[1::3] # isosbestic
+                        ADC2 = signal[2::3] # RFP
                         
                         DI1 = digital[::3]
                         DI2 = digital[1::3]

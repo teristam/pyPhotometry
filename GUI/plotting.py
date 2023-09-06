@@ -47,9 +47,9 @@ class Analog_plot(QtWidgets.QWidget):
 
         
         if self.mode == "1 colour continuous + 2 colour time div.":
-            self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="analog 1_0")
-            self.plot_2 = self.axis.plot(pen=pg.mkPen("b"), name="analog 1_1")
-            self.plot_3 = self.axis.plot(pen=pg.mkPen("r"), name="analog 2")
+            self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="GFP")
+            self.plot_2 = self.axis.plot(pen=pg.mkPen("b"), name="isosbestic")
+            self.plot_3 = self.axis.plot(pen=pg.mkPen("r"), name="RFP")
         else:
             self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="analog 1")
             self.plot_2 = self.axis.plot(pen=pg.mkPen("r"), name="analog 2")
@@ -71,9 +71,9 @@ class Analog_plot(QtWidgets.QWidget):
     def update(self, *args):
         
         if self.mode == "1 colour continuous + 2 colour time div.":
-            new_ADC1_0 = args[0]
-            new_ADC1_1 = args[1]
-            new_ADC2 = args[2]
+            new_ADC1_0 = args[0] #GFP
+            new_ADC1_1 = args[1] #isosbestic
+            new_ADC2 = args[2] #RFP
             
             new_ADC1_0 = 3.3 * new_ADC1_0 / (1 << 15)  # Convert to Volts.
             new_ADC1_1 = 3.3 * new_ADC1_1 / (1 << 15)  # Convert to Volts.
