@@ -110,6 +110,7 @@ class Photometry():
         self.ovs_timer.deinit()
         self.LED1.write(0)
         self.LED2.write(0)
+        self.LED3.value(0)
         self.running = False
         self.usb_serial.setinterrupt(3) # Enable serial interrupt.
         gc.enable()
