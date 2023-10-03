@@ -140,7 +140,15 @@ class Photometry():
         # TODO: smoother LED turn on edge later to avoid photoelectric effects on electrodes
         # LED1: GFP, LED2: isosbestic, LED3: RFP
         # data sent in the form of GFP, isosbestic, RFP
+        '''
+        Connection: 
+        LED1: 470um LED 
+        LED2: 405um LED
+        X18: 565um LED
+        Analog1: photocell - F1(500-540um)
+        Analog2: photocell - F2(580-680)
         
+        '''
         self.LED1.write(self.LED_1_value)
         
         pyb.udelay(300) # Wait before reading ADC (us).
