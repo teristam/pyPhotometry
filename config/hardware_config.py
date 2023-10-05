@@ -18,7 +18,8 @@ ADC_volts_per_division = [0.00010122, 0.00010122]  # Analog signal volts per div
 max_sampling_rate = {
     "cont": 1000,
     "tdiv": 130,
-    'hybrid': 400,
+    'hybrid': 400, # max is 440
+    '3colour_tdiv': 400 # max is 440
 }  # Maximum sampling rate in continous and time division acquisition modes (Hz).
 
 max_LED_current = {

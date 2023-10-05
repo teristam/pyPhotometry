@@ -45,7 +45,7 @@ def import_ppd(file_path, low_pass=20, high_pass=0.01):
     
     analog_3 = None
     
-    if header_dict['mode'] == '1 colour continuous + 2 colour time div.':
+    if header_dict['mode'] == '1 colour continuous + 2 colour time div.' or header_dict['mode'] == '3 colour time div.':
         # there are 3 analog signals, try to make the name compatible with exisiting recordings
         analog_1 = analog[::3] * volts_per_division[0]  # GFP
         analog_3 = analog[1::3] * volts_per_division[0] # isosbestic

@@ -46,7 +46,7 @@ class Analog_plot(QtWidgets.QWidget):
         self.legend = self.axis.addLegend(offset=(10, 10))
 
         
-        if self.mode == "1 colour continuous + 2 colour time div.":
+        if self.mode == "1 colour continuous + 2 colour time div." or self.mode == '3 colour time div.':
             self.plot_1 = self.axis.plot(pen=pg.mkPen("g"), name="GFP")
             self.plot_2 = self.axis.plot(pen=pg.mkPen("b"), name="isosbestic")
             self.plot_3 = self.axis.plot(pen=pg.mkPen("r"), name="RFP")
@@ -59,7 +59,7 @@ class Analog_plot(QtWidgets.QWidget):
 
     def reset(self, sampling_rate):
         history_length = int(sampling_rate * history_dur)
-        if self.mode == "1 colour continuous + 2 colour time div.":
+        if self.mode == "1 colour continuous + 2 colour time div." or self.mode == '3 colour time div.':
             self.ADC1_0 = Signal_history(history_length)
             self.ADC1_1 = Signal_history(history_length)
             self.ADC2 = Signal_history(history_length)
@@ -70,7 +70,7 @@ class Analog_plot(QtWidgets.QWidget):
 
     def update(self, *args):
         
-        if self.mode == "1 colour continuous + 2 colour time div.":
+        if self.mode == "1 colour continuous + 2 colour time div." or self.mode == '3 colour time div.':
             new_ADC1_0 = args[0] #GFP
             new_ADC1_1 = args[1] #isosbestic
             new_ADC2 = args[2] #RFP

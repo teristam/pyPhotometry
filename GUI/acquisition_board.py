@@ -48,7 +48,8 @@ class Acquisition_board(Pyboard):
             "2 colour continuous",
             "1 colour time div.",
             "2 colour time div.",
-            "1 colour continuous + 2 colour time div." # RFP continuous, GFP + isosbestic time div, 
+            "1 colour continuous + 2 colour time div.", # RFP continuous, GFP + isosbestic time div, 
+            '3 colour time div.'
         ], "Invalid mode"
         self.mode = mode
         if mode == "2 colour continuous":  # 2 channel GFP/RFP acquisition mode.
@@ -62,6 +63,9 @@ class Acquisition_board(Pyboard):
             self.max_LED_current = hwc.max_LED_current["tdiv"]
         elif mode == "1 colour continuous + 2 colour time div.":
             self.max_rate = hwc.max_sampling_rate["hybrid"]
+            self.max_LED_current = hwc.max_LED_current["tdiv"]
+        elif mode == '3 colour time div.':
+            self.max_rate = hwc.max_sampling_rate["3colour_tdiv"]
             self.max_LED_current = hwc.max_LED_current["tdiv"]
  
         self.set_sampling_rate(self.max_rate)
@@ -88,7 +92,7 @@ class Acquisition_board(Pyboard):
 
     def set_sampling_rate(self, sampling_rate):
         self.sampling_rate = int(min(sampling_rate, self.max_rate))
-        if self.mode == "1 colour continuous + 2 colour time div.":
+        if self.mode == "1 colour continuous + 2 colour time div." or self.mode == '3 colour time div.':
             # need to be in the multiples of 3
             self.buffer_size = max(2, int(self.sampling_rate // 40) * 3)
         else:
@@ -175,7 +179,7 @@ class Acquisition_board(Pyboard):
                     signal = data >> 1  # Analog signal is most significant 15 bits.
                     digital = (data % 2) == 1  # Digital signal is least significant bit.
                     
-                    if self.mode == "1 colour continuous + 2 colour time div.":
+                    if self.mode == "1 colour continuous + 2 colour time div." or self.mode == '3 colour time div.':
                         ADC1_0 = signal[::3]  # GFP
                         ADC1_1 = signal[1::3] # isosbestic
                         ADC2 = signal[2::3] # RFP

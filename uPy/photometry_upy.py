@@ -31,7 +31,7 @@ class Photometry():
 
     def set_mode(self, mode):
         # Set the acquisition mode.
-        assert mode in ['2 colour continuous', '1 colour time div.', '2 colour time div.', "1 colour continuous + 2 colour time div."], 'Invalid mode.'
+        assert mode in ['2 colour continuous', '1 colour time div.', '2 colour time div.', "1 colour continuous + 2 colour time div.", '3 colour time div.'], 'Invalid mode.'
         self.mode = mode
         if mode == '2 colour continuous':
             self.oversampling_rate = hwc.oversampling_rate['cont']
@@ -86,6 +86,9 @@ class Photometry():
             self.LED3.value(1)
             self.sampling_timer.init(freq=sampling_rate)
             self.sampling_timer.callback(self.hybrid_div_ISR)
+        elif self.mode == '3 colour time div.':
+            self.sampling_timer.init(freq=sampling_rate)
+            self.sampling_timer.callback(self.time_div_3colour)
         else:
             self.sampling_timer.init(freq=sampling_rate*2)
             self.sampling_timer.callback(self.time_div_ISR)
@@ -180,6 +183,59 @@ class Photometry():
             self.write_buf = 1 - self.write_buf
             self.send_buf  = 1 - self.send_buf
             self.buffer_ready = True
+            
+    @micropython.native
+    def time_div_3colour(self, t):
+        # full time division on 3 colors
+        # no background subtraction
+        # LED1: GFP, LED2: isosbestic, LED3: RFP
+        # data sent in the form of GFP, isosbestic, RFP
+        '''
+        Connection: 
+        LED1: 470um LED 
+        LED2: 405um LED
+        X18: 565um LED
+        Analog1: photocell - F1(500-540um)
+        Analog2: photocell - F2(580-680)
+        
+        '''
+        self.LED1.write(self.LED_1_value)
+        
+        pyb.udelay(300) # Wait before reading ADC (us).
+        self.ADC1.read_timed(self.ovs_buffer, self.ovs_timer) # Read sample of analog 1: GFP
+        self.sample = sum(self.ovs_buffer) >> 3
+        self.sample_buffers[self.write_buf][self.write_ind] = (self.sample << 1) | self.DI1.value()
+        self.write_ind += 1
+        self.LED1.write(0)
+        
+        
+
+        self.LED2.write(self.LED_2_value)
+        
+        pyb.udelay(300) # Wait before reading ADC (us).
+        self.ADC1.read_timed(self.ovs_buffer, self.ovs_timer) # Read sample of analog 1: isosbestic
+        self.sample = sum(self.ovs_buffer) >> 3
+        self.sample_buffers[self.write_buf][self.write_ind] = (self.sample << 1) | self.DI2.value()
+        self.write_ind += 1
+        self.LED2.write(0)
+        
+        
+        self.LED3.value(1)
+        pyb.udelay(300) # Wait before reading ADC (us).
+        self.ADC2.read_timed(self.ovs_buffer, self.ovs_timer) # Read sample of analog 2. RFP
+        self.sample = sum(self.ovs_buffer) >> 3
+        self.sample_buffers[self.write_buf][self.write_ind] = (self.sample << 1) | self.DI1.value() #need to discard the DI value later
+        self.LED3.value(0)
+
+        
+        # Update write index and switch buffers if full.
+        self.write_ind = (self.write_ind + 1) % self.buffer_size
+        if self.write_ind == 0: # Buffer full, switch buffers.
+            self.write_buf = 1 - self.write_buf
+            self.send_buf  = 1 - self.send_buf
+            self.buffer_ready = True
+              
+
 
     @micropython.native
     def time_div_ISR(self, t):
