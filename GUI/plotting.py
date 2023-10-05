@@ -180,7 +180,7 @@ class Event_triggered_plot:
         rising_edges = np.where(np.diff(trig_section) == 1)[0]
         for i, edge in enumerate(rising_edges):
             edge_ind = -self.window[1] - new_data_len - 1 + edge  # Position of edge in signal history.
-            ev_trig_sig = analog.ADC1.history[edge_ind + self.window[0] : edge_ind + self.window[1]]
+            ev_trig_sig = analog.ADC2.history[edge_ind + self.window[0] : edge_ind + self.window[1]]
             if self.average is None:  # First acquisition
                 self.average = ev_trig_sig
             else:  # Update averaged trace.

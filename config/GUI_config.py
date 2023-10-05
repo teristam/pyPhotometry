@@ -5,7 +5,7 @@ VERSION = "0.3.3"  # Version number of pyPhotometry.
 # ----------------------------------------------------------------------------------------
 
 history_dur = 10  # Duration of plotted signal history (seconds)
-triggered_dur = [-3, 6.9]  # Window duration for event triggered signals (seconds pre, post)
+triggered_dur = [-3, 3]  # Window duration for event triggered signals (seconds pre, post)
 update_interval = 5  # Interval between calls to update function (ms).
 
 default_LED_current = [30, 30]  # Channel [1, 2] (mA).
